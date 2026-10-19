@@ -6,5 +6,85 @@
 </head>
 <body>
     <p>La consommation à DenDen</p>
+    <style>
+  :root {
+    --bg: #f6f7f4; --surface: #ffffff; --text: #1d2a2a; --muted: #5d6b6b;
+    --line: #dfe4e0; --accent: #1f6f6b; --bar: #bfdcd9; --warn: #b4521a;
+    --total-bg: #eaf2f0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #121a1a; --surface: #1a2424; --text: #e6eeec; --muted: #9bb0ad;
+      --line: #2c3a39; --accent: #6fc3bd; --bar: #2d5551; --warn: #f0925a;
+      --total-bg: #203130;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 2rem 1rem 3rem; background: var(--bg); color: var(--text);
+    font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; line-height: 1.5;
+  }
+  main { max-width: 760px; margin: 0 auto; }
+  h1 { font-size: 1.75rem; margin: 0 0 .25rem; letter-spacing: -.01em; }
+  p.sub { margin: 0 0 1.5rem; color: var(--muted); }
+  .wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+  table { width: 100%; border-collapse: collapse; min-width: 520px; }
+  th, td { padding: .7rem 1rem; text-align: left; border-bottom: 1px solid var(--line); }
+  th { font-weight: 600; font-size: .9rem; color: var(--muted); }
+  th.n, td.n { text-align: right; font-variant-numeric: tabular-nums; }
+  td.n { position: relative; width: 28%; }
+  td.n span { position: relative; z-index: 1; }
+  td.n i {
+    position: absolute; top: 6px; bottom: 6px; right: 0; background: var(--bar);
+    border-radius: 3px 0 0 3px; width: calc(var(--v) * 1%);
+  }
+  tbody tr:last-child td { border-bottom: 0; }
+  tr.total td { font-weight: 700; background: var(--total-bg); }
+  tr.total td.n i, tr.meter td.n i { display: none; }
+  tr.meter td { font-weight: 600; color: var(--accent); border-top: 2px solid var(--accent); }
+  td.zero span { color: var(--warn); font-weight: 600; }
+  td.sep { padding: 0; height: .5rem; background: var(--bg); border-bottom: 0; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Consommation STEG – Denden</h1>
+  <p class="sub">Consommation par maison et par société, juillet et août.</p>
+  <div class="wrap">
+    <table>
+      <thead>
+        <tr><th scope="col">Maisons / Société</th><th scope="col" class="n">Consommation juillet</th><th scope="col" class="n">Consommation août</th></tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+</main>
+<script>
+  // Données issues de Consommation-STEG-DenDen.xlsx
+  var rows = [
+    ["Maison 1", 150, 150], ["Maison 2", 100, 100], ["Maison 3", 100, 100],
+    ["Maison 4", 100, 100], ["Maison 5", 150, 150], ["Maison 6", 100, 100],
+    ["Maison 7", 100, 100], ["Maison 8", 100, 100], ["Maison 9", 100, 0],
+    ["Maison 10", 150, 150], ["Office National de l’artisanat", 950, 950]
+  ];
+  var total = ["Total", 2000, 1900];
+  var meter = ["Compteur Denden", 2000, 2000];
+  var max = 950;
+
+  function cell(v, withBar) {
+    var cls = "n" + (v === 0 ? " zero" : "");
+    var bar = withBar ? '<i style="--v:' + (v / max * 100) + '"></i>' : "";
+    return '<td class="' + cls + '">' + bar + "<span>" + v.toLocaleString("fr-FR") + "</span></td>";
+  }
+  function line(r, cls, withBar) {
+    return '<tr class="' + cls + '"><th scope="row" style="font-weight:inherit;color:inherit;font-size:inherit">' +
+      r[0] + "</th>" + cell(r[1], withBar) + cell(r[2], withBar) + "</tr>";
+  }
+  var html = rows.map(function (r) { return line(r, "", true); }).join("");
+  html += line(total, "total", false);
+  html += '<tr><td class="sep" colspan="3"></td></tr>';
+  html += line(meter, "meter", false);
+  document.getElementById("rows").innerHTML = html;
+</script>
 </body>
 </html>
